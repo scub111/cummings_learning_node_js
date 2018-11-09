@@ -1,0 +1,11 @@
+<h1>-{{ message }}-</h1>
+<h2>{{ error.status }}</h2>
+<pre>{{ error.stack }}</pre>
+<pre>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Tempora assumenda asperiores labore inventore nostrum quibusdam,
+   nesciunt velit aliquam commodi eum deleniti necessitatibus odit rerum modi repudiandae doloribus quaerat sapiente nulla
+   repellendus illo saepe, expedita eius. Soluta, numquam ducimus. Ex illo dolor illum enim repellat animi consequatur quae
+   quos alias ad, quo dolorem soluta minima, velit, odio aut! Animi architecto rem voluptatem? Hic repellendus placeat, suscipit
+   sint odio quis aperiam laudantium ut molestias? Ipsam temporibus non totam et omnis natus eligendi ex doloribus provident.
+   Ex laborum corrupti odit. Aliquam temporibus aspernatur tempora hic dolor. Consequuntur molestias, quod dolor inventore
+   illum voluptatibus!   
+</pre>
