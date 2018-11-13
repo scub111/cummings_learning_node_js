@@ -3,10 +3,23 @@
 const gulp = require('gulp');
 const mocha = require('gulp-mocha');
 const env = require('gulp-env');
+const istanbul = require('gulp-istanbul');
 
 gulp.task('test', function() {
    env({vars: {NODE_ENV: 'test'}});
    return gulp.src('test/**/*.js').pipe(mocha());
 });
 
-gulp.task('default', ['test']);
+gulp.task('instrument', function() {
+   return gulp.src('src/**/*.js')
+      .pipe(istanbul())
+      .pipe(istanbul.hookRequire())
+});
+
+gulp.task('default', ['test', 'instrument'], function() {
+   gulp.src('test/**/*.js')
+      .pipe(istanbul.writeReports())
+      .pipe(istanbul.enforceThresholds({
+         thresholds: {global: 90}
+      }));
+});
