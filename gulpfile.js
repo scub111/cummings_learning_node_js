@@ -13,7 +13,7 @@ gulp.task('test', function() {
 gulp.task('instrument', function() {
    return gulp.src('src/**/*.js')
       .pipe(istanbul())
-      .pipe(istanbul.hookRequire())
+      .pipe(istanbul.hookRequire());
 });
 
 gulp.task('default', ['test', 'instrument'], function() {

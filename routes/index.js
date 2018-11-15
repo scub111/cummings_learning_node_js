@@ -8,18 +8,23 @@ router.get('/', function (req, res, next) {
    visits += 1;
    res.cookie('visits', visits);
    let userId = req.user.id;
-   let createdGames = games.createBy(userId);
-   let availableGames = games.availableTo(userId)
-   res.render('index',
-      {
-         title: 'Hangman',
-         name: 'Biskub 12345',
-         visits, 
-         userId,
-         createdGames,
-         availableGames,
-         partials: {createdGame: 'createdGame'}
-      });
+
+   res.cookie('visits', visits);
+   games.createBy(userId)
+      .then(gamesCreatedByUser =>
+         games.availableTo(req.user.id)
+            .then(gamesAvailableToUser => {
+               res.render('index', {
+                  title: 'Hangman',
+                  name: 'Biskub 12345',
+                  visits,
+                  userId,
+                  createdGames: gamesCreatedByUser,
+                  availableGames: gamesAvailableToUser,
+                  partials: { createdGame: 'createdGame' }
+               });
+            }))
+            .catch(next);
 });
 
 module.exports = router;

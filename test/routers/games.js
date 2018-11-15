@@ -5,7 +5,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('supertest');
 const expect = require('chai').expect;
-const gamesService = require('../../services/games');
+const service = require('../../services/games');
 
 const TEST_PORT = 5000, userId = 'test-user-id';
 
@@ -26,9 +26,11 @@ describe('/games', () => {
       server = http.createServer(app).listen(TEST_PORT, done);
    });
 
-   afterEach(() => {
-      const gamesCreated = gamesService.availableTo('non-user');
-      gamesCreated.forEach(game => game.remove());
+   afterEach((done) => {
+      service.availableTo('not-a-user')
+         .then(games => games.map(game => game.remove()))
+         .then(gamesRemoved => Promise.all(gamesRemoved))
+         .then(() => done(), done);
    });
 
    after(done => {
@@ -41,39 +43,45 @@ describe('/games', () => {
 
    describe('/:id DELETE', () => {
       it('should allow users to delete their own games', done => {
-         const game = gamesService.create(userId, 'test');
-         agent
-            .delete(`/games/${game.id}`)
-            .expect(200)
-            .expect(() => {
-               expect(gamesService.createBy(userId)).to.be.empty;
-            })
-            .end(done);
+         service.create(userId, 'test')
+            .then(game => {
+               agent
+                  .delete(`/games/${game.id}`)
+                  .expect(200)
+                  .expect(() => {
+                     expect(service.createBy(userId)).to.be.empty;
+                  })
+                  .end(done);
+            });
       });
 
       it('should not allow to delete games that they did not set', done => {
-         const game = gamesService.create('another-user-id', 'test');
-         agent
-            .delete(`/games/${game.id}`)
-            .expect(403)
-            .expect(() => expect(gamesService.get(game.id).ok))
-            .end(done);
+         service.create('another-user-id', 'test')
+            .then(game => {
+               agent
+                  .delete(`/games/${game.id}`)
+                  .expect(403)
+                  .expect(() => expect(service.get(game.id).ok))
+                  .end(done);
+            });
       });
 
       it('should return a 404 for requests to delete a game that no longer exists', done => {
-         const game = gamesService.create(userId, 'test');
-         agent
-            .delete(`/games/${game.id}`)
-            .expect(200)
-            .end(err => {
-               if (err) {
-                  done(err);
-               } else {
-                  agent
-                     .delete(`/games/${game.id}`)
-                     .expect(404, done);
-               }
-            })
+         service.create(userId, 'test')
+            .then(game => {
+               agent
+                  .delete(`/games/${game.id}`)
+                  .expect(200)
+                  .end(err => {
+                     if (err) {
+                        done(err);
+                     } else {
+                        agent
+                           .delete(`/games/${game.id}`)
+                           .expect(404, done);
+                     }
+                  });
+            });
       });
    });
 });

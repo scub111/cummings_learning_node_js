@@ -8,38 +8,44 @@ describe('Game service', () => {
    const firstUserId = 'user-id-1';
    const secondUserId = 'user-id-2';
 
-   beforeEach(() => {
-      let gamesCreated = service.availableTo('not-a-user');
-      gamesCreated.forEach(game => game.remove());
+   beforeEach((done) => {
+      service.availableTo('not-a-user')
+         .then(games => games.map(game => game.remove()))
+         .then(gamesRemoved => Promise.all(gamesRemoved))
+         .then(() => done(), done);
    });
 
-   describe('list of available games', () => {
+   describe('list of available games', (done) => {
       it('should include games set by other users', () => {
          // Given
          service.create(firstUserId, 'testing');
 
          // When
-         const games = service.availableTo(secondUserId);
-
-         // Then
-         expect(games.length).to.equal(1);
-         const game = games[0];
-         expect(game.setBy).to.equal(firstUserId);
-         expect(game.word).to.equal('TESTING');
+         service.availableTo(secondUserId)
+            .then(games => {
+               // Then
+               expect(games.length).to.equal(1);
+               const game = games[0];
+               expect(game.setBy).to.equal(firstUserId);
+               expect(game.word).to.equal('TESTING');
+            })
+            .then(() => done(), done);
       });
 
       it('should not include games set by the same user', () => {
          // Given
          service.create(firstUserId, 'first');
          service.create(secondUserId, 'second');
-         
-         // When
-         const games = service.availableTo(secondUserId);
 
-         // Then
-         expect(games.length).to.equal(1);
-         const game = games[0];
-         expect(game.setBy).not.to.equal(secondUserId);
+         // When
+         service.availableTo(secondUserId)
+            .then(games => {
+               // Then
+               expect(games.length).to.equal(1);
+               const game = games[0];
+               expect(game.setBy).not.to.equal(secondUserId);
+            })
+            .then(() => done(), done);
       });
    });
 });
