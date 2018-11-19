@@ -7,7 +7,7 @@ const istanbul = require('gulp-istanbul');
 
 gulp.task('test', function() {
    env({vars: {NODE_ENV: 'test'}});
-   return gulp.src('__test__/**/*.js').pipe(mocha());
+   return gulp.src('__tests__/**/*.js').pipe(mocha());
 });
 
 gulp.task('instrument', function() {
@@ -17,7 +17,7 @@ gulp.task('instrument', function() {
 });
 
 gulp.task('default', ['test', 'instrument'], function() {
-   gulp.src('__test__/**/*.js')
+   gulp.src('__tests__/**/*.js')
       .pipe(istanbul.writeReports())
       .pipe(istanbul.enforceThresholds({
          thresholds: {global: 90}
