@@ -15,8 +15,8 @@ describe('Game service', () => {
          .then(() => done(), done);
    });
 
-   describe('list of available games', (done) => {
-      it('should include games set by other users', () => {
+   describe('list of available games', () => {
+      it('should include games set by other users', (done) => {
          // Given
          service.create(firstUserId, 'testing');
 
@@ -32,7 +32,7 @@ describe('Game service', () => {
             .then(() => done(), done);
       });
 
-      it('should not include games set by the same user', () => {
+      it('should not include games set by the same user', (done) => {
          // Given
          service.create(firstUserId, 'first');
          service.create(secondUserId, 'second');
