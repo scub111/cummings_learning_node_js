@@ -3,43 +3,37 @@
 const games = [];
 let nextId = 1;
 
-class Game {
-   constructor(id, setBy, word) {
-      this.id = id;
-      this.setBy = setBy;
-      this.word = word.toUpperCase();
-   }
+const mongoose = require('mongoose');
+mongoose.Promise = Promise;
+mongoose.connect('mongodb://localhost/hangman');
 
-   positionsOf(character) {
-      let positions = [];
-      for (let i in this.word) {
-         if (this.word[i] === character.toUpperCase()) {
-            positions.push(i);
-         }
+const Schema = mongoose.Schema;
+const gameSchema = new Schema({
+   word: String,
+   setBy: String
+});
+
+const Game = mongoose.model('Game', gameSchema);
+
+gameSchema.method.positionOf = function(character) {
+   let position = [];
+   for (let i in this.word) {
+      if (this.word[i] === character.toUpperCase()) {
+         position.push(i);
       }
-      return positions;
    }
-
-   remove() {
-      games.splice(games.indexOf(this), 1);
-      return Promise.resolve();
-   }
+   return position;
 }
 
-module.exports.create = (userId, word) => {
-   const newGame = new Game(nextId++, userId, word);
-   games.push(newGame);
-   return newGame;
-};
-
-module.exports.get = (id) => Promise.resolve(games.find(game => game.id === parseInt(id, 10)));
-
-module.exports.createBy = (userId) => Promise.resolve(games.filter(game => game.setBy === userId));
-
 module.exports.create = (userId, word) =>  {
-   const newGame = new Game(nextId++, userId, word);
-   games.push(newGame);
-   return Promise.resolve(newGame);
+   const newGame = new Game({setBy: userId, word: word.toUpperCase()});
+   return newGame.save();
 };
 
-module.exports.availableTo = (userId) => Promise.resolve(games.filter(game => game.setBy !== userId));
+module.exports.createBy = (userId) => Game.find({setBy: userId});
+
+//module.exports.availableTo = (userId) => Game.find({set: {$ne: userId}});
+
+module.exports.availableTo = (userId) => Game.where('setBy').ne(userId);
+
+module.exports.get = (id) => Game.findById(id);
